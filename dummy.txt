@@ -1,0 +1,54 @@
+// query := `
+	// 	INSERT INTO member (member_id, name, age, add_date)
+	// 	VALUES ($1, $2, $3, $4)
+	// 	`
+	// url := "http://localhost:8080/readBodyData"
+
+	// response, err := http.Get(url)
+	// if err != nil {
+	// 	log.Fatalf("Failed to make request: %v", err)
+	// }
+	// // defer response.Body.Close()
+
+	// body, err := io.ReadAll(response.Body)
+	// if err != nil {
+	// 	log.Fatalf("Failed to read response body: %v", err)
+	// }
+	// fmt.Println(body)
+
+	// body, err := io.ReadAll(c.Request.Body)
+	// if err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read body"})
+	// 	return
+	// }
+
+
+	func dbConnection()(*sql.DB, error){
+	// connection string
+	psqlconn := fmt.Sprintf("host= %s port = %d user = %s password= %s dbname= %s sslmode= %s",host,port ,user, pas sword,dbname,sslmode)
+
+	// connection open
+	db, err := sql.Open("postgres",psqlconn)
+	if err != nil{
+		return nil, fmt.Printf("DB connection failed %v\n",err)
+	}
+
+	return db, nil
+}
+// insertStmnt := `insert into "members" values(7821, 'kriti', 'kriti@example.com',8873422290, '2024-07-11', 'A003');`
+	// _ ,e := db.Exec(insertStmnt)
+	// if e != nil{
+	// 	fmt.Println(" insertion failed %v",e)
+	// }
+
+
+	// fmt.Println("memberid:", userDataa.Member_id)
+	// fmt.Println("name:", userDataa.Name)
+	// fmt.Println("age:", userDataa.Age)
+	// fmt.Println("adddate:", userDataa.Add_date)
+
+	// database.DbConnection()
+	// fmt.Println("boo id",newBoook)
+	// fmt.Println("book name",newBook.name)
+	// fmt.Println("book author",newBook.author)
+	// fmt.Println("book count",newBook.count)
