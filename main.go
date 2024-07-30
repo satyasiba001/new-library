@@ -3,36 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/satyasiba001/new-library/database"
-	"golang.org/x/exp/rand"
 )
-
-func getData(c *gin.Context) {
-	c.JSON(200, gin.H{"data": "hi, I am gin"})
-}
-
-func readBodyData(c *gin.Context) {
-	body := c.Request.Body
-	value, _ := io.ReadAll(body)
-	c.JSON(200, gin.H{"bodyData": string(value)})
-}
-
-func readParam(c *gin.Context) {
-	name := c.Query("name")
-	age := c.Query("age")
-	c.JSON(200, gin.H{"namefromquery": name, "agefromquery": age})
-}
-func readUrldata(c *gin.Context) {
-	name := c.Param("name")
-	age := c.Param("age")
-	c.JSON(200, gin.H{"namefromurl": name, "agefromurl": age})
-}
 
 type UserData struct {
 	Member_id int    `json:"member_id" db:"member_id"`
@@ -152,8 +128,8 @@ func bookBorrow(c *gin.Context) {
 		return
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	randomNumber := rand.Intn(90000) + 10000
+	// rand.Seed(time.Now().UnixNano())
+	// randomNumber := rand.Intn(90000) + 10000
 
 	db, _ := database.DbConnection()
 
@@ -176,20 +152,17 @@ func bookBorrow(c *gin.Context) {
 		}
 	}
 
-	query3 := `INSERT INTO booktransactions (borrow_id,member_id,book_id,borrow_date,return_date)VALUES($1, $2, $3, $4, $5) `
-	_, err2 := db.Exec(query3, randomNumber, booktransactions.Member_id, booktransactions.Name, booktransactions.Borrow_Date, nil)
-	if err2 != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "server down, you can't borrow book now"})
-		return
-	}
+	// query3 := `INSERT INTO booktransactions (borrow_id,member_id,book_id,borrow_date,return_date)VALUES($1, $2, $3, $4, $5) `
+	// _, err2 := db.Exec(query3, randomNumber, booktransactions.Member_id, booktransactions.Name, booktransactions.Borrow_Date, nil)
+	// if err2 != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "server down, you can't borrow book now"})
+	// 	return
+	// }
 }
 
 func main() {
 	router := gin.Default()
-	router.GET("/getData", getData)
-	router.GET("/getBodyData", readBodyData)
-	router.GET("/getQueryParam", readParam)
-	router.GET("/getUrlData/:name/:age", readUrldata)
+
 	router.POST("/addMember", insertData)
 	router.POST("/addnewBook", insertNewBook)
 	router.GET("/memberDetails/:member", getMemberdetails)

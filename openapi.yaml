@@ -1,0 +1,152 @@
+openapi: 3.0.0 #Swagger Version
+info:
+  title: LIBRARY
+  #Title/API Product Name
+  description: | 
+   ## **These APIs to operate a library application.**   
+
+  version: 1.0.0 # API Version
+servers:
+- url: http://localhost:9000/ #Put your Base URL 
+tags:
+  - name: Endpoints
+paths : 
+  /addMember: #Put your Endpoint
+    post: #Method
+      tags:
+        - Endpoints
+      summary: New member onboard in library # Summery of the endpoint
+      description: |
+        **New Member onboard** 
+      # Summery of the endpoint
+      operationId: /addMember #Put your endpoint here
+      x-google-backend:
+        address:  http://localhost:9000/addMember #URI
+      requestBody: # Request for the API
+        description: |
+          ### **Below is the request Body for the above endpoint**  
+          **NOTE: Kindly update the request body before executing**
+        content:
+          application/json: 
+            schema: 
+                $ref: '#/components/schemas/addmember' # Reference for request body check in component schema
+            examples:    # Example of the request body
+              Example:-1:   # Example 1
+                value: # As per the API need
+                  member_id: 4342
+                  age: 32
+                  name: "sibu"
+                  add_date: "21 july"
+
+      responses: # Response of the API like 200, 400, 404, 500
+          "200": 
+            description: "Ok"
+            content:
+              application/json:
+                schema:
+                  type: object
+                example: # As per the response get from API
+                  status: 1
+                  msg : "new member created"
+                  
+  /addnewBook: #Put your Endpoint
+    post: #Method
+      tags:
+        - Endpoints
+      summary: New Book added in library # Summery of the endpoint
+      description: |
+        **New Book add ** 
+      operationId: /addnewBook #Put your endpoint here
+      x-google-backend:
+        address:  http://localhost:9000/addnewBook #URI
+      requestBody: # Request for the API
+        description: |
+          ### **Below is the request Body for the above endpoint**  
+          **NOTE: Kindly update the request body before executing**
+        content:
+          application/json: 
+            schema: 
+                $ref: '#/components/schemas/addnewBook' # Reference for request body check in component schema
+            examples:    # Example of the request body
+              Example:-1:   # Example 1
+                value: # As per the API need
+                  book_id: 4342
+                  name: "harry potter"
+                  author: "sibu"
+                  count: 5
+
+      responses: # Response of the API like 200, 400, 404, 500
+          "200": 
+            description: "Ok"
+            content:
+              application/json:
+                schema:
+                  type: object
+                example: # As per the response get from API
+                  status: 1
+                  msg : "no new book added to the library"
+          "400":
+            description: "no book added"
+            content:
+              application/json:
+                schema:
+                  type: object
+                example: # As per the response get from API
+                  status: 0
+                  msg : "Failed to parse JSON"
+            
+components: #Default
+  schemas: # Default
+    addmember: # Name for a specific reference
+      required: 
+        - member_id
+        - age
+        - name
+        - add_date
+        
+  
+      type: object
+      properties: # Properties of apecific reference
+                member_id: 
+                  type: "integer" # tye of the field 
+                  example: 23456 # Eaxmple of the field
+                  description: "member's unique id" # Description
+                age:
+                  type: "integer" # tye of the field 
+                  example: "71" # Eaxmple of the field
+                  description: "Age of the member" # Description
+                name:
+                  type: "string"
+                  example: "sibu"
+                  description: "Name of the member"
+                add_date: 
+                  type: "string"
+                  example: "31 jan"
+                  description : "Date of joining"
+                  
+    addnewBook: # Name for a specific reference
+      required: 
+        - book_id
+        - name
+        - author
+        - count
+        
+  
+      type: object
+      properties: # Properties of apecific reference
+                book_id: 
+                  type: "integer" # tye of the field 
+                  example: 2356 # Eaxmple of the field
+                  description: "book's unique id" # Description
+                name:
+                  type: "string" # tye of the field 
+                  example: "harry potter" # Eaxmple of the field
+                  description: "name of the book" # Description
+                author:
+                  type: "string"
+                  example: "harry kane"
+                  description: "Name of the author"
+                count: 
+                  type: "integer"
+                  example: 7
+                  description : "count of the book"

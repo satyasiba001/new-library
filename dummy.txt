@@ -63,3 +63,31 @@
 	// }
 
 	// c.JSON(200, gin.H{"Status": 1, "msg": "new book arrived to the library"})
+
+
+	router.GET("/getData", getData)
+	router.GET("/getBodyData", readBodyData)
+	router.GET("/getQueryParam", readParam)
+	router.GET("/getUrlData/:name/:age", readUrldata)
+
+
+	func getData(c *gin.Context) {
+	c.JSON(200, gin.H{"data": "hi, I am gin"})
+}
+
+func readBodyData(c *gin.Context) {
+	body := c.Request.Body
+	value, _ := io.ReadAll(body)
+	c.JSON(200, gin.H{"bodyData": string(value)})
+}
+
+func readParam(c *gin.Context) {
+	name := c.Query("name")
+	age := c.Query("age")
+	c.JSON(200, gin.H{"namefromquery": name, "agefromquery": age})
+}
+func readUrldata(c *gin.Context) {
+	name := c.Param("name")
+	age := c.Param("age")
+	c.JSON(200, gin.H{"namefromurl": name, "agefromurl": age})
+}
