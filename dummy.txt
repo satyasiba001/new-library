@@ -91,3 +91,11 @@ func readUrldata(c *gin.Context) {
 	age := c.Param("age")
 	c.JSON(200, gin.H{"namefromurl": name, "agefromurl": age})
 }
+
+
+	// query3 := `INSERT INTO booktransactions (borrow_id,member_id,book_id,borrow_date,return_date)VALUES($1, $2, $3, $4, $5) `
+	// _, err2 := db.Exec(query3, randomNumber, booktransactions.Member_id, booktransactions.Name, booktransactions.Borrow_Date, nil)
+	// if err2 != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "server down, you can't borrow book now"})
+	// 	return
+	// }
