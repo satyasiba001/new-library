@@ -1,45 +1,39 @@
 apiVersion: apps/v1 #Deployment
 kind: Deployment
 metadata:
-  name: ext-auth
+  name: library-deployment
   namespace : default 
   labels:
-    app: ext-auth
+    app: library
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ext-auth
+      app: library
   template:
     metadata:
       labels:
-        app: ext-auth
+        app: library
     spec:
       containers:
-        - name: ext-auth
-          image: gcr.io/card-issuing/card-acquiring-auth@sha256:a90e132a2e96ac3a77e12a0bf6adfe57513ea9e58d1663dc796d009976b6f6a8 #change to redirecftion container image
+        - name: library
+          image: satyasibasahoo/library@sha256:a534dcb9a101253bf79cdbf841165551e634d583a61f1598fa3015b5d79dd589 #change to redirecftion container image
           ports:
-            - containerPort: 8000
-              name: http
             - containerPort: 9000
-              name: grpc  
+              name: http 
 ---
 apiVersion: v1 #Service
 kind: Service
 metadata:
-  name: ext-auth
+  name: library
   namespace: default
 spec:
   selector:
-    app: ext-auth
+    app: library
   ports:
-    - protocol: TCP
-      port: 8000
-      targetPort: 8000 
-      name: http
     - protocol: TCP
       port: 9000
       targetPort: 9000 
-      name: grpc
+      name: http
   type: NodePort
 ---
