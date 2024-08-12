@@ -4,26 +4,29 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/rs/xid"
 	"github.com/satyasiba001/new-library/database"
-	 "math/rand"
 )
 
 type UserData struct {
-	Member_id int    `json:"member_id" db:"member_id"`
-	Name      string `json:"name" db:"name"`
-	Age       int    `json:"age" db:"age"`
+	// Member_id string    `json:"member_id" db:"member_id"`
+	Name   string `json:"name" db:"name"`
+	Age    int    `json:"age" db:"age"`
+	Aadhar string `json:"aadhar" db:"aadhar"`
 	// Add_date  string `json:"add_date" db:"add_date"`
 }
 
 type BookData struct {
-	Book_id int    `json:"book_id"`
-	Name    string `json:"name"`
-	Author  string `json:"author"`
-	Count   int    `json:"count"`
+	// Book_id int    `json:"book_id"`
+	Name   string `json:"name"`
+	Author string `json:"author"`
+	Count  int    `json:"count"`
 }
 
 type BookTransaction struct {
@@ -37,16 +40,31 @@ type bookPresentDetails struct {
 	Book_name   string
 }
 
+func GeneretaeUID() string {
+	newUUID := uuid.New()
+	return newUUID.String()
+}
+
+func GenerateBookID() int64 {
+	newUID := uuid.New()
+	return int64(newUID.ID()) % 100000
+}
+
+func GenerateBookTransactionID() string {
+	id := xid.New().String()
+	return id
+}
+
 func GetMemberdetails(c *gin.Context) {
-	member_name := c.Param("member")
+	member_idd := c.Param("member_id")
 	db, _ := database.DbConnection()
 	var usercopy UserData
-	var memberAdmissionDate string
+	// var memberAdmissionDate string
 
-	query := `SELECT * FROM members WHERE name = $1`
+	query := `SELECT name,age,aadhar FROM members WHERE member_id = $1`
 
 	// result , err := db.Exec(query,member_name)
-	err := db.QueryRow(query, member_name).Scan(&usercopy.Member_id, &usercopy.Name, &usercopy.Age, &memberAdmissionDate)
+	err := db.QueryRow(query, member_idd).Scan(&usercopy.Name, &usercopy.Age, &usercopy.Aadhar)
 	// fmt.Printf("%T\n",result)
 	if err != nil {
 		fmt.Println("member not forund in DB", err)
@@ -77,7 +95,7 @@ func BooksPresent(c *gin.Context) {
 		}
 		Names = append(Names, name)
 	}
-	c.JSON(200, gin.H{"All Bools Present": Names})
+	c.JSON(200, gin.H{"All Books Present": Names})
 }
 
 func InsertData(c *gin.Context) {
@@ -86,24 +104,25 @@ func InsertData(c *gin.Context) {
 
 	err := json.NewDecoder(c.Request.Body).Decode(&userDataa)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse JSON"})
-		fmt.Println("error is", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Input"})
+		// fmt.Println("error is", err)
 		return
 	}
 
 	today := time.Now().Truncate(24 * time.Hour)
+	uid := GeneretaeUID()
 
 	db, _ := database.DbConnection()
-	// database.DbConnection()
-	query := `INSERT INTO members (member_id,name,age,add_date)VALUES($1, $2, $3, $4)`
 
-	_, er := db.Exec(query, userDataa.Member_id, userDataa.Name, userDataa.Age, today)
+	query := `INSERT INTO members (member_id,name,age,add_date,aadhar)VALUES($1, $2, $3, $4, $5)`
+
+	_, er := db.Exec(query, uid, userDataa.Name, userDataa.Age, today, userDataa.Aadhar)
 	if er != nil {
 		fmt.Println("not inserted")
 		return
 	}
 
-	c.JSON(200, gin.H{"Status": 1, "msg": "new member created"})
+	c.JSON(200, gin.H{"Status": 1, "User_ID": uid, "msg": "You got the admission, Remember your user_ID for future reference"})
 }
 
 func InsertNewBook(c *gin.Context) {
@@ -116,11 +135,13 @@ func InsertNewBook(c *gin.Context) {
 		return
 	}
 
+	book_id := GenerateBookID()
+
 	db, _ := database.DbConnection()
 
 	query := `INSERT INTO books (book_id,name,author,count)VALUES($1, $2, $3, $4)`
 
-	_, er := db.Exec(query, newBoook.Book_id, newBoook.Name, newBoook.Author, newBoook.Count)
+	_, er := db.Exec(query, book_id, newBoook.Name, newBoook.Author, newBoook.Count)
 	if er != nil {
 		fmt.Println("no new book added to the library")
 		return
@@ -173,7 +194,7 @@ func BookBorrow(c *gin.Context) {
 	fmt.Println(err3)
 	if err3 != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can't borrow the book due to some technical error"})
-	}else{
+	} else {
 		c.JSON(http.StatusOK, gin.H{"status": "You got the book, return it within 10 days"})
 	}
 }
