@@ -99,3 +99,7 @@ func readUrldata(c *gin.Context) {
 	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "server down, you can't borrow book now"})
 	// 	return
 	// }
+
+
+	// rand.Seed(time.Now().UnixNano())
+	// id := rand.Int63n(9000000) + 1000000

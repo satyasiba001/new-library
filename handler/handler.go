@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand"
 	"net/http"
 	"time"
 
@@ -30,9 +29,8 @@ type BookData struct {
 }
 
 type BookTransaction struct {
-	Member_id int    `json:"member_id" db:"member_id"`
+	Member_id string  
 	Name      string `json:"name" db:"name"`
-	// Borrow_Date string `json:"borrow_date"`
 }
 
 type bookPresentDetails struct {
@@ -155,9 +153,9 @@ func BookBorrow(c *gin.Context) {
 	err := json.NewDecoder(c.Request.Body).Decode(&booktransactions)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse JSON"})
-		// fmt.Println("error is", err)
 		return
 	}
+	fmt.Println(booktransactions.Member_id)
 
 	db, _ := database.DbConnection()
 
@@ -182,16 +180,18 @@ func BookBorrow(c *gin.Context) {
 		}
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Book not available"})
+		return
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	id := rand.Int63n(9000000) + 1000000
+	
 	today := time.Now().Truncate(24 * time.Hour)
 
-	query3 := `INSERT INTO booktransactions (borrow_id,member_id,book_name,borrow_date,return_date)VALUES($1, $2, $3, $4, $5)`
+	BookBorrow_id := GenerateBookTransactionID()
 
-	_, err3 := db.Exec(query3, id, booktransactions.Member_id, booktransactions.Name, today, nil)
-	fmt.Println(err3)
+	query3 := `INSERT INTO booktransaction (borrow_id,member_id,book_name,borrow_date,return_date)VALUES($1, $2, $3, $4, $5)`
+
+	_, err3 := db.Exec(query3, BookBorrow_id, booktransactions.Member_id, booktransactions.Name, today, nil)
+	// fmt.Println(err3)
 	if err3 != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can't borrow the book due to some technical error"})
 	} else {
