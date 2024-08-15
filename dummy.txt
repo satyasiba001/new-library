@@ -103,3 +103,9 @@ func readUrldata(c *gin.Context) {
 
 	// rand.Seed(time.Now().UnixNano())
 	// id := rand.Int63n(9000000) + 1000000
+
+	// type BookReturnstruct struct {
+// 	Member_id string  
+// 	Name      string `json:"name" db:"name"`
+// 	Borrow_id string 
+// }

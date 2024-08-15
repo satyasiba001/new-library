@@ -18,6 +18,7 @@ func main() {
 
 	// Book Trasanction APIs
 	router.POST("/bookBorrow", handler.BookBorrow)
+	router.POST("/bookReturn", handler.BookReturn)
 
 	router.Run(":9000")
 

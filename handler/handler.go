@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/rs/xid"
@@ -31,6 +30,10 @@ type BookData struct {
 type BookTransaction struct {
 	Member_id string  
 	Name      string `json:"name" db:"name"`
+}
+
+type Borrow struct{
+	Borrow_id string
 }
 
 type bookPresentDetails struct {
@@ -155,7 +158,7 @@ func BookBorrow(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse JSON"})
 		return
 	}
-	fmt.Println(booktransactions.Member_id)
+	// fmt.Println(booktransactions.Member_id)
 
 	db, _ := database.DbConnection()
 
@@ -195,6 +198,56 @@ func BookBorrow(c *gin.Context) {
 	if err3 != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can't borrow the book due to some technical error"})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"status": "You got the book, return it within 10 days"})
+		c.JSON(http.StatusOK, gin.H{"status": "You got the book, return it within 10 days","Book borrow ID":BookBorrow_id})
 	}
+}
+
+func BookReturn(c *gin.Context){
+
+	// Getting the value from request body
+	var borrow_return_id Borrow
+	err := json.NewDecoder(c.Request.Body).Decode(&borrow_return_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Not getting data from requestbody"})
+		return
+	}
+	
+	// DB connection for DB operations
+	db, _ := database.DbConnection()
+
+
+    // Getting trasanction details via borrow_id from request body
+	var book_you_have BookTransaction
+	query := `SELECT member_id,book_name FROM booktransaction WHERE borrow_id = $1`
+	err = db.QueryRow(query, borrow_return_id.Borrow_id).Scan(&book_you_have.Member_id, &book_you_have.Name)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "You have entered the wrong borrow_id, Kindly recheck!"})
+		return
+	}
+
+	today := time.Now().Truncate(24 * time.Hour)
+
+	
+	// Book Returned
+	query3 := `UPDATE booktransaction SET return_date=$1 WHERE return_date IS NULL AND borrow_id = $2`
+	result, _ := db.Exec(query3, today,borrow_return_id.Borrow_id)
+
+	newresult, error := result.RowsAffected()
+	if error != nil{
+		log.Fatal(error)
+	}
+	boolvalues := newresult !=0
+
+	
+	query2 := `UPDATE books SET count=count+1 WHERE name = $1`
+	if boolvalues{	
+		_, err3 := db.Exec(query2,book_you_have.Name)
+		if err3 != nil{
+			fmt.Println("Book table updated with the return book")
+		}
+		c.JSON(http.StatusOK, gin.H{"status": "You returned the book"})
+	}else{
+		c.JSON(http.StatusForbidden, gin.H{"error": "You can't return the book due to some technical error"})
+	}
+	
 }
