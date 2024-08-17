@@ -14,6 +14,7 @@ members Table:
 - name: Name of the member.
 - age: Age of the member.
 - add_date: Registration date of the member.
+- aadhar: aadhar card of the member
 
 books Table:
 
@@ -22,21 +23,22 @@ books Table:
 - author: Author of the book.
 - count: Number of copies available.
 
-booktransactions Table:
+booktransaction Table:
 
 - borrow_id: Unique identifier for each borrowing transaction.
 - member_id: ID of the member borrowing the book.
-- book_id: ID of the book being borrowed.
+- book_name: Name of the book being borrowed.
 - borrow_date: Date when the book was borrowed.
+- return_date: Date of book return to library.
 
 2. ## Data Storage
 
 The postgres database:
 DB Name : newlibrary
 
-- members: Slice of Book structs.
-- books: Slice of Member structs.
-- booktransactions : Slice of Transaction structs.
+- members
+- books
+- booktransaction
 
 ## Service Design Pattern
 
@@ -51,7 +53,6 @@ Book Services:
 
 - /addnewBook
 - /booksPresent
-- /checkBookAvailability
 
 Book Transaction Services:
 
@@ -69,10 +70,9 @@ Create a new member in the system.
 
 ```json
 {
-    "member_id":34245,
-    "age":89,
-    "name":"satya",
-    "add_date":"23april"
+    "name":"sonali",
+    "age":15,
+    "aadhar": "1129456000887652"
 }
 ```
 
@@ -81,7 +81,8 @@ Create a new member in the system.
 ```json
 {
   "Status": 1,
-  "msg": "new member created"
+  "User_ID": "f9b014cb-3846-41af-a7a1-98d731b5cc8a",
+  "msg": "You got the admission, Remember your user_ID for future reference"
 }
 ```
 
@@ -95,7 +96,7 @@ Retrieve details of a specific member by their name.
 
 #### Request
 
-- Endpoint: `/memberDetails/:member`
+- Endpoint: `/memberDetails/:member_id`
 - Method: GET
 
 #### Response Body (JSON)
@@ -103,10 +104,9 @@ Retrieve details of a specific member by their name.
 ```json
 {
   "Member Details": {
-    "member_id": 34245,
-    "name": "satya",
-    "age": 89,
-    "add_date": "23april"
+    "name": "hari",
+    "age": 15,
+    "aadhar": "1129456000800982"
   }
 }
 ```
@@ -121,10 +121,9 @@ Create a new book in the library
 
 ```json
 {
-    "book_id":6906,
-    "name":"starwar 4",
-    "author":"albert",
-    "count": 0
+    "name":"The Alchemist",
+    "author":"Paulo Coelho",
+    "count": 6
 }
 ```
 
@@ -166,29 +165,8 @@ Retrieve a list of books present
 
 ```
 
-### 5. API Endpoint: POST - /checkBookAvailability
 
-#### Purpose
-
-To check if the books is available or not 
-
-#### Request Body (JSON)
-
-```json
-{
-  
-}
-```
-
-#### Response Body (JSON)
-
-```json
-{
-
-}
-```
-
-### 6. API Endpoint: POST - /bookBorrow
+### 5. API Endpoint: POST - /bookBorrow
 
 #### Purpose
 
@@ -198,7 +176,8 @@ To Borrow Book
 
 ```json
 {
-  
+    "member_id":"6d1361bc-1493-4b02-bb37-0eee762bf918",
+    "name":"The Hobbit"
 }
 ```
 
@@ -206,7 +185,8 @@ To Borrow Book
 
 ```json
 {
-
+  "Book borrow ID": "cr01iu2cifct4e25ovc0",
+  "status": "You got the book, return it within 10 days"
 }
 ```
 
@@ -224,7 +204,7 @@ To Return the borrowed Book
 
 ```json
 {
-  
+  "borrow_id":"cr01iu2cifct4e25ovc0"
 }
 ```
 
@@ -232,6 +212,6 @@ To Return the borrowed Book
 
 ```json
 {
-
+  "status": "You returned the book"
 }
 ```
